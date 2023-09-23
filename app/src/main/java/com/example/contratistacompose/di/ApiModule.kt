@@ -1,6 +1,7 @@
 package com.example.contratistacompose.di
 
-//import com.example.contratistacompose.BuildConfig
+//import com.example.contratistacompose.Buil
+import com.example.contratistacompose.BuildConfig
 import com.example.contratistacompose.data.repository.web.BudgetRepositoryImp
 import com.example.contratistacompose.data.repository.web.CustomerRepositoryImp
 import com.example.contratistacompose.data.repository.web.EventRepositoryImp
@@ -14,7 +15,6 @@ import com.example.contratistacompose.domain.EventRepository
 import com.example.contratistacompose.domain.ProductRepository
 import com.example.contratistacompose.domain.ReservedRepository
 import com.example.contratistacompose.domain.SingRepository
-import com.example.contratistacompose.utils.Constants
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,22 +31,24 @@ object ApiModule {
 
     @Singleton
     @Provides
-    fun provideInterceptor(): OkHttpClient { //if (BuildConfig.DEBUG) {
+    fun provideOkHttpClient(): OkHttpClient = if (BuildConfig.DEBUG) {
         val loggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-        return OkHttpClient.Builder().addInterceptor(loggingInterceptor).build()
+        OkHttpClient.Builder().addInterceptor(loggingInterceptor).build()
+    } else {
+        OkHttpClient.Builder().build()
     }
-//    } else {
-//        OkHttpClient.Builder().build()
-//    }
 
     @Singleton
     @Provides
-    fun provideRetrofit(client: OkHttpClient): Retrofit = Retrofit.Builder()
-        .addConverterFactory(GsonConverterFactory.create())
-        .baseUrl(Constants.BASE_URL)
-        .client(client)
-        .build()
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        val build = Retrofit.Builder()
+            .addConverterFactory(GsonConverterFactory.create())
+            .baseUrl(BuildConfig.BASE_URL)
+            .client(okHttpClient)
+            .build()
+        return build
+    }
 
     @Singleton
     @Provides
@@ -75,11 +77,5 @@ object ApiModule {
     @Singleton
     @Provides
     fun provideBudget(budget: BudgetRepositoryImp): BudgetRepository = budget
-
-//    factory<ProductService> { ProductService(get(), get()) }
-//    factory<EventService> { EventService(get(), get()) }
-//    factory<SingService> { SingService(get(), get()) }
-//    factory<ReservedService> { ReservedService(get(), get()) }
-//    factory<BudgetService> { BudgetService(get(), get()) }
 
 }

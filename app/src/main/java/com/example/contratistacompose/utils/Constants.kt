@@ -52,7 +52,12 @@ object Constants {
 
     enum class Format {
         Money,
-        Text
+        Number,
+        Text,
+        TextAndNumbers,
+        Email,
+        Password,
+        MultiCharacter,
     }
 
     const val BASE_URL = "http://localhost:9191"

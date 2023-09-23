@@ -1,7 +1,7 @@
 package com.example.contratistacompose.data.repository.web.utils
 
 import com.example.contratistacompose.data.source.web.models.ResponseApi
-import com.invoice.contratista.utils.UNEXPECTED_ERROR
+import com.example.contratistacompose.utils.UNEXPECTED_ERROR
 import retrofit2.Response
 
 class Resolve<T>(

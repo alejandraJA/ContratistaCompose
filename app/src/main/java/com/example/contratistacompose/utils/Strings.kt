@@ -1,4 +1,4 @@
-package com.invoice.contratista.utils
+package com.example.contratistacompose.utils
 
 const val EMAIL_CANNOT_EQUALS_PASSWORD = "Email and password cannot be the same"
 const val PASSWORD_NOT_MATCH = "Password do not match"
@@ -71,3 +71,21 @@ fun getTaxability(value: String) = when (value) {
     "03" -> "Sí objeto de impuesto, pero no obligado a desglose."
     else -> "No objeto de impuesto."
 }
+
+// Password errors
+const val MIN_MAX_LENGTH = "Password must be between 8 and 20 characters"
+const val UPPERCASE = "Password must contain at least one uppercase letter"
+const val LOWERCASE = "Password must contain at least one uppercase letter"
+const val ONE_DIGIT = "Password must contain at least one digit"
+const val ONE_SPECIAL_CHARACTER = "Password must contain at least one special character (@, #, \$, %)"
+const val NO_WHITESPACE = "Password cannot contain whitespace"
+const val THREE_CONSECUTIVE = "Password cannot contain more than 3 consecutive repeated characters"
+const val NO_CONSECUTIVE = "Password cannot contain consecutive characters like 'abc', '123', etc."
+const val NO_REPEATED_CHARACTER = "Password cannot contain repeated characters in sequence like '111', 'aaa', etc."
+
+
+const val INVALID_EMAIL = "Invalid Email"
+const val NO_LETTER_AND_SPECIAL_CHARACTER = "Only enter numbers"
+const val IS_NOT_MONEY = "Enter decimal figures"
+const val NO_NUMBER_AND_SPECIAL_CHARACTER = "Don´t enter numbers and special character"
+const val NO_SPECIAL_CHARACTER = "Don´t enter special character"

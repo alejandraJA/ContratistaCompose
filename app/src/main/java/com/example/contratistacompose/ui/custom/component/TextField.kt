@@ -1,28 +1,24 @@
 package com.example.contratistacompose.ui.custom.component
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.dp
 import com.example.contratistacompose.R
+import com.example.contratistacompose.utils.Constants
 import com.invoice.contratista.ui.theme.ModifierFieldImages
-import com.invoice.contratista.utils.HIGH
-import com.invoice.contratista.utils.REQUIRED
 
+@ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @Composable
-fun TextField(
-    model: TextFieldModel
-) = Column(modifier = model.modifier) {
-    var field by rememberSaveable { mutableStateOf(TextFieldValue(model.init)) }
+fun TextField(model: TextFieldModel) = Column(modifier = model.modifier) {
+    var field by remember { mutableStateOf(TextFieldValue(model.init)) }
     val isFieldEmpty = field.text.isEmpty()
     val hasError = model.externalError.value.isNotEmpty()
     val isRequiredAndEmpty = model.isRequired && isFieldEmpty
@@ -32,7 +28,8 @@ fun TextField(
         value = field,
         onValueChange = { newValue ->
             field = newValue
-            model.change.invoke(newValue.text)
+            if (model.validateTextInput(newValue.text, model.format, model.isRequired))
+                model.change.invoke(newValue.text)
         },
         label = {
             val labelHint = "${model.hint}${if (model.isRequired) "*" else ""}"
@@ -54,74 +51,50 @@ fun TextField(
         },
         trailingIcon = if (model.trailingIcon.isNotEmpty() && !(model.isRequired && isFieldEmpty)) {
             {
-                Icon(
+                if (model.format != Constants.Format.Password) Icon(
                     painter = painterResource(R.drawable.high),
                     contentDescription = "Error $model.hint",
                     tint = MaterialTheme.colorScheme.error,
                     modifier = ModifierFieldImages
-                )
+                ) else {
+                    Icon(
+                        painter = painterResource(R.drawable.high),
+                        contentDescription = "Error $model.hint",
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = ModifierFieldImages
+                    )
+                }
             }
         } else if (model.isRequired && isFieldEmpty) {
             {
-                Icon(
-                    painter = painterResource(R.drawable.high),
-                    contentDescription = "Error $model.hint",
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = ModifierFieldImages
-                )
+                if (model.passwordState.value)
+                    Icon(
+                        painter = painterResource(R.drawable.visibility),
+                        contentDescription = "visibility",
+                        modifier = ModifierFieldImages.clickable {
+                            model.passwordState.value = !model.passwordState.value
+                        }
+                    )
+                else
+                    Icon(
+                        painter = painterResource(R.drawable.visibility_off),
+                        contentDescription = "visibility_off",
+                        modifier = ModifierFieldImages.clickable {
+                            model.passwordState.value = !model.passwordState.value
+                        }
+                    )
             }
         } else null,
         visualTransformation = model.visualTransformation,
         modifier = model.modifier
     )
 
-    TextFieldErrorText(textFieldModel = model, isRequiredAndEmpty = isRequiredAndEmpty)
-
-    if (model.counterEnable) {
-        TextFieldCounterText(field = field, counterNumber = model.counterNumber)
+    Row {
+        if (model.externalError.value.isNotEmpty())
+            TextFieldErrorText(model = model, isRequiredAndEmpty = isRequiredAndEmpty)
+        if (model.externalError.value.isNotEmpty() || model.counterEnable)
+            Spacer(Modifier.weight(1f))
+        if (model.counterEnable)
+            TextFieldCounterText(field = field, counterNumber = model.counterNumber)
     }
 }
-
-
-@Composable
-private fun TextFieldErrorText(
-    textFieldModel: TextFieldModel,
-    isRequiredAndEmpty: Boolean
-) {
-    Text(
-        text = if (isRequiredAndEmpty) REQUIRED
-        else textFieldModel.externalError.value.ifEmpty { "" },
-        color = MaterialTheme.colorScheme.error,
-        style = MaterialTheme.typography.bodySmall,
-        modifier = Modifier.padding(top = 8.dp)
-    )
-}
-
-@Composable
-private fun TextFieldCounterText(
-    field: TextFieldValue,
-    counterNumber: Int
-) {
-    Text(
-        text = "${field.text.length}/$counterNumber",
-        style = MaterialTheme.typography.bodySmall,
-        modifier = Modifier
-            .padding(top = 8.dp)
-            .alpha(0.5f)
-    )
-}
-
-class TextFieldModel(
-    val init: String = "",
-    val hint: String,
-    val change: (String) -> Unit,
-    val placeholder: String = "",
-    val modifier: Modifier = Modifier.fillMaxWidth(),
-    val icon: Int = R.drawable.high,
-    val isRequired: Boolean = false,
-    val visualTransformation: VisualTransformation = VisualTransformation.None,
-    val counterEnable: Boolean = false,
-    val externalError: MutableState<String> = mutableStateOf(""),
-    val counterNumber: Int = 0,
-    val trailingIcon: String = ""
-)

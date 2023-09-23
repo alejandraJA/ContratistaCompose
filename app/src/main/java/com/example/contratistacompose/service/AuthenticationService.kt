@@ -11,7 +11,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
-class SingService @Inject constructor(
+class AuthenticationService @Inject constructor(
     private val repository: SingRepository,
     private val userService: UserService
 ) : SuperService(userService) {

@@ -1,8 +1,6 @@
 package com.example.contratistacompose.utils
 
 import com.example.contratistacompose.data.source.web.models.Address
-import com.invoice.contratista.utils.EXTERIOR
-import com.invoice.contratista.utils.INTERIOR
 
 
 fun Address.getAddress() = "$street, " +

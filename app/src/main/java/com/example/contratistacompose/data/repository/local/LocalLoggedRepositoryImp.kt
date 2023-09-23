@@ -18,17 +18,19 @@ class LocalLoggedRepositoryImp @Inject constructor(@ApplicationContext context: 
 
     private var _email: String
         get() = _preferences.getString(UserConstants.USERNAME, "")!!
-        set(value) = this._preferences.edit().putString(UserConstants.USERNAME, value).apply()
+        set(value) = this._preferences.edit()
+            .putString(UserConstants.USERNAME, value).apply()
 
 
     private var _token: String
         get() = _preferences.getString("${_email}.${UserConstants.TOKEN}", "")!!
-        set(value) = _preferences.edit().putString("${_email}.${UserConstants.TOKEN}", value).apply()
+        set(value) = _preferences.edit()
+            .putString("${_email}.${UserConstants.TOKEN}", value).apply()
 
     private var _password: String
         get() = _preferences.getString("$_email.${UserConstants.PASSWORD}", "")!!
-        set(value) = _preferences.edit().putString("$_email.${UserConstants.PASSWORD}", value)
-            .apply()
+        set(value) = _preferences.edit()
+            .putString("$_email.${UserConstants.PASSWORD}", value).apply()
 
     override fun get() = UserLogged(email = _email, token = _token, password = _password)
 
@@ -38,11 +40,7 @@ class LocalLoggedRepositoryImp @Inject constructor(@ApplicationContext context: 
         _password = userLogged.password
     }
 
-    override fun logout() {
-        _token = ""
-        _email = ""
-        _password = ""
-    }
+    override fun logout() = _preferences.edit()!!.clear().apply()
 
     override fun getToken() = _token
 

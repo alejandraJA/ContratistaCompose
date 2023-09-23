@@ -1,6 +1,7 @@
 package com.example.contratistacompose.service
 
 import com.example.contratistacompose.data.repository.web.utils.WebStatus
+import com.example.contratistacompose.data.source.local.UserLogged
 
 open class SuperService(private val userService: UserService) {
     val isUserLogged: Boolean
