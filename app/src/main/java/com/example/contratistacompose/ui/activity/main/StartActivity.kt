@@ -1,10 +1,10 @@
 package com.example.contratistacompose.ui.activity.main
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,8 +21,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -47,9 +48,9 @@ class StartActivity : ComponentActivity() {
     private lateinit var viewModel: StartViewModel
     private lateinit var loginViewModel: SingViewModel
     private lateinit var singInViewModel: SingViewModel
-    private val status: MutableState<StatusData> =
-        mutableStateOf(StatusData(Constants.Status.Success, ""))
+    private var status by mutableStateOf(StatusData(Constants.Status.Success, ""))
 
+    @SuppressLint("UnrememberedMutableState")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this)[StartViewModel::class.java]
@@ -61,14 +62,14 @@ class StartActivity : ComponentActivity() {
         setObserver()
         setContent {
             AppTheme(isSystemInDarkTheme()) {
-                if (viewModel.isLoggedUser.value)
-                    Text(
-                        text = "User Logged",
-                        modifier = Modifier.clickable {
-                            viewModel.logout()
+                StatusContent(status = mutableStateOf(this.status)) {
+                    if (viewModel.isLoggedUser.value) {
+                        viewModel.updateToken {
+                            status = StatusData(Constants.Status.Failure, it)
                         }
-                    )
-                else StatusContent(status = status) { AuthenticationScreen() }
+                    } else
+                        AuthenticationScreen()
+                }
             }
         }
     }
@@ -81,8 +82,9 @@ class StartActivity : ComponentActivity() {
     }
 
     private fun setObserver() {
-        loginViewModel.statusData.observe(this) { status.value = it }
-        singInViewModel.statusData.observe(this) { status.value = it }
+        val changeStatus = { it: StatusData -> status = it }
+        loginViewModel.statusData.observe(this, changeStatus)
+        singInViewModel.statusData.observe(this, changeStatus)
     }
 
     private fun onLoggedUser(): () -> Unit = {
